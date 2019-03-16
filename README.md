@@ -16,12 +16,13 @@ As of now, the main functionality is as follows:
 - Real-Time Weather Data via DarkSky API
 
 - Management & Control of 'Milight' brand LED products
-  
-  *** Special thanks to the project "esp8266_milight_hub" - I am running this on a NodeMCU board, which functions as my device "hub". This provides a developer-friendly web API, and avoids the forced use of a third-party Chinese server handling all your device requests. (The official Milight brand hubs operate this way in order to provide users control from outside the local network) ***
-  
   - Create new Milight device via GUI, which gets persisted to MongoDB
   - CRUD functionality for all Milight devices via GUI
   - All created Milight devices populate onto the main view, from where a user can toggle the power, or adjust brightness/color
+  
+  *** Special thanks to the project "esp8266_milight_hub" - I am running this on a NodeMCU board, which functions as my device "hub". This provides a developer-friendly web API, and avoids the forced use of a third-party Chinese server handling all your device requests. (The official Milight brand hubs operate this way in order to provide users control from outside the local network) ***
+  
+  
 
 - Management & Control of 'Etekcity' brand RF Outlet Switches
   - Create new outlet switch devices via GUI, persisted to MongoDB
