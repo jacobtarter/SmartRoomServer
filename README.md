@@ -3,6 +3,8 @@ The purpose of this project is to replace a central Smart-Home application, such
 
 This is intended to be ran on a Raspberry Pi
 
+![Screenshot](https://dl2.pushbulletusercontent.com/3DNc7z7XNMevIL1VvXcEitGabRN91yaT/Screen%20Shot%202019-03-16%20at%202.06.10%20AM.png)
+
 I decided not to use an existing open-source project such as OpenHAB or Home Assistant because:
 - I wanted full control over how everything looks & works
 - I wanted the ability to completely design a web front-end from scratch
@@ -22,8 +24,6 @@ As of now, the main functionality is as follows:
   
   *** Special thanks to the project "esp8266_milight_hub" - I am running this on a NodeMCU board, which functions as my device "hub". This provides a developer-friendly web API, and avoids the forced use of a third-party Chinese server handling all your device requests. (The official Milight brand hubs operate this way in order to provide users control from outside the local network) ***
   
-  
-
 - Management & Control of 'Etekcity' brand RF Outlet Switches
   - Create new outlet switch devices via GUI, persisted to MongoDB
   - Crud functionality for all devices
