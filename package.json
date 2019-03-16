@@ -1,0 +1,40 @@
+{
+  "name": "smartroomserver",
+  "version": "1.0.0",
+  "description": "Server for smart room devices",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app"
+  },
+  "dependencies": {
+    "arpping": "^0.1.5",
+    "axios": "^0.18.0",
+    "baseconvert": "^1.0.0",
+    "bcryptjs": "*",
+    "body-parser": "^1.18.3",
+    "bottleneck": "^2.13.2",
+    "btwatch": "^1.1.0",
+    "cors": "^2.8.5",
+    "crypto-random-hex": "^1.0.0",
+    "express": "^4.16.4",
+    "fauxmojs": "^1.0.3",
+    "jsonwebtoken": "^8.4.0",
+    "lodash": "^4.17.11",
+    "mongodb": "2.4",
+    "mongoose": "^5.3.13",
+    "nexmo": "^2.4.0",
+    "noble": "^1.9.1",
+    "node-schedule": "^1.3.1",
+    "passport": "*",
+    "passport-jwt": "^4.0.0",
+    "random-js": "^1.0.8",
+    "rcswitch-gpiomem": "^0.3.2",
+    "rpi-433": "^2.1.0",
+    "socket.io": "^2.2.0",
+    "spotify-web-api-node": "^2.5.0",
+    "websocket": "^1.0.28"
+  },
+  "author": "Jacob Tarter",
+  "license": "ISC"
+}
