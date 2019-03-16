@@ -66,4 +66,4 @@ Future Plans:
   - To start, triggers will be limited to time/date, in order to create scheduled future tasks and/or repeating tasks
   - Eventually: "State-based" triggers, such as a specific value within sensor data, or another defined, logical set of requirements.
   - Each trigger will be linked to an action, which can be a single action with a specific device, or a pre-created scene
-  - Will make it unnecessary to schedule/automate natively within the app, making it unnecessary to combine the app with the    Alexa app routines to achieve this.
+  - Will make it quick & easy to schedule/automate tasks (or a scene) natively, right within the app, making it unnecessary to combine the Alexa mobile app "routines" feature to achieve this.
