@@ -4,7 +4,7 @@ The purpose of this project is to replace a central Smart-Home application, such
 This is intended to be ran on a Raspberry Pi [at least for one primary instance, for the use of the GPIO pins]
 In addition, as I further develop the UI I'm focusing on responsiveness, meaning the Web frontend should work well on any kind of touchscreen you can get your hands on (your phone, tablet, laptop...) 
 
-If you want to get fancier, you could pick up a larger touchscreen and mount it to a wall (or similar) in order to serve as as "control center"
+If you want to get fancier, you could pick up a larger standalone touchscreen (or dedicated tablet device) and mount it to a wall (or similar) in order to serve as as "control center"
 
 ![Screenshot](https://dl2.pushbulletusercontent.com/3DNc7z7XNMevIL1VvXcEitGabRN91yaT/Screen%20Shot%202019-03-16%20at%202.06.10%20AM.png)
 
@@ -39,7 +39,10 @@ As of now, the main functionality is as follows:
   - After instantiating all of your devices via the GUI, you should be able to say "Alexa, discover devices", and all your created devices should show up as switches, ready to be controlled.
   - The package fauxmojs works by emulating Wemo switches, which were some of the first natively compatible switches for the Echo devices. I have read that due to this integration, the Alexa device is actually able to make direct requests to an API in response to voice commands without the need to hit the server first (this could be incorrect).
 
-One of my primary "big-picture" goals is to create a smart home application which is as user-friendly and easy to setup and get going as possible, comparable to a commercial product.  This includes graphical, easy-to-use interfaces for the creation & management of all supported devices, with minimal user input to set up each one. 
+One of my primary "big-picture" goals is to create a smart home application which is as user-friendly and easy to setup and get going as possible, comparable to a commercial product.  This includes graphical, easy-to-use interfaces for the creation & management of all supported devices, with minimal user input to set up each one.
+
+Current look of the device creation screen:
+![Screenshot](https://dl2.pushbulletusercontent.com/p4lplvnsR9K10UTuiYm51icK2H9N3Ymw/Screen%20Shot%202019-03-16%20at%204.15.56%20AM.png)
 
 (I also plan on adding in further user-friendliness as I go: tooltips on inputs/controls, context-based suggestions...)  
 
@@ -51,11 +54,13 @@ Scenes
 - A defined set of devices, each with a defined list of actions to perform
   - Ex: Lamp1: "Power On, Set Brightness to 100%", Lamp2: "Power On, Set Brightness to 50%, Color to Red", RFSwitch: "Toggle Off"
   - Although they function differently, these will be also be treatead as "SwitchedDevices" behind-the-scenes, so they will populate the main control panel view along with all other devices.  They will also be detected as switches by Alexa automatically like the other devices.
-  - A single tap of the scene within the main view will trigger the entire defined scene
+  - The first screenshot provided contains Scenes, this is my work-in-progress "UI Look"
+  - A single tap of the Scene within the main view will trigger the entire defined set of actions
 
-Tip: Combining your own defined scene(s) & the ability to create "routines" within the Alexa app allows for a fairly decent task scheduler and allows for basic-level defined automations.
+Tip: Combining your own defined Scene(s) with the ability to create "routines" within the Alexa app allows for a fairly decent task scheduler and allows for basic-level defined automations. I plan on building in similar functionality moving forward.
 
 Future Plans:
+
 - Add UI controls for RGB+CCT type Milight devices (saturation & color temp)
   - Utilize a standard RGB color-picker for devices which support saturation (RGB+CCT Bulbs and/or RGBW/WW LED strips + CCT-Capable controller like FUT039)
 - Finish implementation of "Scenes"
