@@ -52,12 +52,14 @@ module.exports.sendWeatherData = function() {
 	//console.log('*** Sending WS With Newest Weather Data... ***');
 	//console.log('*');
 	//console.log(this.weatherData);
-	io.emit('WEATHER', this.weatherData);
+	io.emit('DATA_WEATHER', this.weatherData);
 };
 
-module.exports.sendLightStates = function(devices) {
-	console.log('*');
-	console.log('*** Sending WS With Device State Data... ***');
-	console.log('*');
-	io.emit('DEVICE_STATES', devices);
+module.exports.sendLightStates = function(devices, type) {
+	if (type) {
+		prefix = 'DEVICE_STATES_' + type;
+	} else {
+		prefix = 'DEVICE_STATES';
+	}
+	io.emit(prefix, devices);
 };

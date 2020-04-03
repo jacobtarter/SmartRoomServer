@@ -12,15 +12,27 @@ const alexaService = require('../../services/alexa');
 const Bottleneck = require('bottleneck');
 const limiter = new Bottleneck({
 	maxConcurrent: 1,
-	minTime: 110,
-	highWater: 2,
+	minTime: 75,
+	highWater: 5,
 	strategy: Bottleneck.strategy.OVERFLOW
 });
 
-// Temporary Bulk Delete Route, For Dev
-router.get('/delete/all', (req, res) => {
-	//SwitchedDevice.remove({}).then(res.json({msg: "GOT EM ALL"}));
-});
+const ipMap = {
+	'192.168.1.71': 'Macbook',
+	'192.168.1.245': 'Phone',
+	'192.168.1.243': 'Pi Server',
+	'192.168.1.244': 'Pi Control Panel'
+};
+
+function logClientData(req) {
+	ipAddress = req.connection.remoteAddress.slice(7);
+	console.log('***');
+	console.log('Request: ');
+	console.log(new Date().toTimeString());
+	console.log('IP ADDRESS: ' + ipAddress);
+	console.log('REQUEST FROM: ' + ipMap[ipAddress]);
+	console.log('***');
+}
 
 // Temporary Testing Route, For Dev
 router.get('/test', (req, res) => {
@@ -42,7 +54,8 @@ router.get('/test', (req, res) => {
 
 // Get All Switched Devices
 router.get('/', (req, res) => {
-	var devices = deviceService.getCachedDevices();
+	//logClientData(req);
+	var devices = deviceService.getCachedDevices(req.query.type);
 	if (devices) {
 		res.json(devices);
 	} else {
@@ -51,6 +64,7 @@ router.get('/', (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
+	//logClientData(req);
 	SwitchedDevice.findByIdAndRemove(req.params.id, (err, device) => {
 		if (err) {
 			console.log('ERROR DELETING ' + err);
@@ -64,6 +78,7 @@ router.delete('/:id', (req, res) => {
 
 // Create Device
 router.post('/', (req, res) => {
+	//logClientData(req);
 	try {
 		newDevice = new SwitchedDevice();
 		if (req.body.name) {
@@ -83,9 +98,8 @@ router.post('/', (req, res) => {
 						newDevice.room = room;
 
 						if (req.body.switch) {
-                            var sw = req.body.switch;
-                            console.log("switch: " + JSON.stringify(sw));
-                            sw.bulbStyle = "RGB_CCT";
+							var sw = req.body.switch;
+							sw.bulbStyle = 'RGB_CCT';
 							BaseSwitch.create(sw, function(err, sw) {
 								if (err) res.json(err);
 								newDevice.switch = sw;
@@ -128,18 +142,29 @@ router.post('/', (req, res) => {
 	}
 });
 
+router.post('/command', (req, res) => {
+	//logClientData(req);
+	command(req, res);
+});
+var command = limiter.wrap(sendCommand);
 function sendCommand(req, res) {
-	console.log('**');
-	console.log('**REQUEST: ' + new Date() + ' **');
-	deviceService.sendCommand(req.body.id, req.body.command);
+	param = req.body.param ? req.body.param : null;
+	deviceService.sendCommand(req.body.id, req.body.command, param);
 	res.status(200).send({ msg: 'success' });
 }
 
-var command = limiter.wrap(sendCommand);
-
-// Send Command To Device
-router.post('/command', (req, res) => {
-	command(req, res);
+router.post('/command/foreach', (req, res) => {
+	//logClientData(req);
+	forEachDevice(req, res);
+	res.status(200).send({ msg: 'success' });
 });
+var forEachDevice = limiter.wrap(sendForEachCommand);
+function sendForEachCommand(req, res) {
+	deviceService.forEachDevice(
+		req.body.deviceType,
+		req.body.command,
+		req.body.param
+	);
+}
 
 module.exports = router;

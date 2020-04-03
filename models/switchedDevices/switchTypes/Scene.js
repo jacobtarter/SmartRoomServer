@@ -17,7 +17,7 @@ var deviceCommandArray = new Schema({
 				required: true
 			},
 			param: {
-				type: String,
+				type: Object,
 				required: false
 			}
 		}
@@ -35,9 +35,18 @@ SceneSchema.pre('validate', function(next) {
 });
 
 SceneSchema.method('togglePower', function() {
+	console.log('power off called');
 	this.state = true;
+
 	this.children.forEach(device => {
 		device.commands.forEach(command => {
+			console.log(
+				device.deviceId +
+					' * ' +
+					command.function +
+					' * ' +
+					command.param
+			);
 			deviceService.sendCommand(
 				device.deviceId,
 				command.function,
@@ -48,27 +57,42 @@ SceneSchema.method('togglePower', function() {
 });
 
 SceneSchema.method('powerOn', function() {
+	console.log('power off called');
 	this.state = true;
+
 	this.children.forEach(device => {
 		device.commands.forEach(command => {
-			deviceService.sendCommand(
-				device.deviceId,
-				command.function,
-				command.param
-			);
+			if (device.deviceId === 'all') {
+				console.log('calling for each');
+				deviceService.forEachDevice(command.function, command.param);
+				return;
+			} else {
+				deviceService.sendCommand(
+					device.deviceId,
+					command.function,
+					command.param
+				);
+			}
 		});
 	});
 });
 
 SceneSchema.method('powerOff', function() {
+	console.log('power off called');
 	this.state = true;
+
 	this.children.forEach(device => {
 		device.commands.forEach(command => {
-			deviceService.sendCommand(
-				device.deviceId,
-				command.function,
-				command.param
-			);
+			if (device.deviceId === 'all') {
+				console.log('calling for each');
+				deviceService.forEachDevice(command.function, command.param);
+			} else {
+				deviceService.sendCommand(
+					device.deviceId,
+					command.function,
+					command.param
+				);
+			}
 		});
 	});
 });

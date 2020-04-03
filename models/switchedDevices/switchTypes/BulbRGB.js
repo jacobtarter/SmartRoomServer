@@ -32,6 +32,16 @@ var rgbSchema = new Schema({
 		default: 127,
 		required: false
 	},
+	colorTemp: {
+		type: Number,
+		default: 100,
+		required: false
+	},
+	saturation: {
+		type: Number,
+		default: 100,
+		required: false
+	},
 	isWhite: {
 		type: Boolean,
 		default: true,
@@ -62,11 +72,19 @@ var rgbSchema = new Schema({
 		},
 		address: {
 			type: String,
-			default: 'http://192.168.1.92/gateways/',
+			default: 'http://192.168.4.1/gateways/',
 			required: true
 		}
 	}
 });
+
+objParamMap = {
+	status: 'state',
+	hue: 'color',
+	level: 'brightness',
+	saturation: 'saturation',
+	temperature: 'colorTemp'
+};
 
 // -- Methods --
 
@@ -97,6 +115,56 @@ rgbSchema.method('unpairDevice', function() {
 	//console.log('device unpaired from the hub: ' + this.hub.address);
 });
 
+rgbSchema.method('sendMessage', function(msgObj) {
+	console.log('msgObj: ' + JSON.stringify(msgObj));
+	newVals = {};
+	Object.keys(msgObj).forEach(function(cmd) {
+		if (objParamMap[cmd]) {
+			paramName = objParamMap[cmd];
+			paramVal = msgObj[cmd];
+			if (!isNaN(paramVal) && paramVal !== true && paramVal !== false) {
+				newVals[paramName] = parseInt(paramVal);
+			} else {
+				this[paramName] = paramVal;
+			}
+		} else if (cmd === 'command' && msgObj[cmd] === 'set_white') {
+			newVals.isWhite = true;
+			console.log('cmd: ' + cmd + ' msgObj[cmd] = ' + msgObj[cmd]);
+		}
+	});
+	if (newVals.brightness !== null) {
+		this.brightness = newVals.brightness;
+		this.state = true;
+	}
+	if (newVals.saturation !== null) this.saturation = newVals.saturation;
+	if (newVals.color !== null) this.color = newVals.color;
+	if (typeof newVals.state === 'boolean') this.state = newVals.state;
+	if (newVals.isWhite !== null) this.isWhite = newVals.isWhite;
+	if (newVals.colorTemp) this.colorTemp = newVals.colorTemp;
+	console.log(JSON.stringify(newVals));
+	this.save();
+	if (msgObj.command === 'set_white') {
+		console.log('test. colorTemp: ' + this.colorTemp);
+		RGBService.milightSetState(
+			this.deviceId,
+			this.deviceGroup,
+			this.bulbStyle,
+			this.state,
+			this.brightness,
+			this.colorTemp,
+			false
+		);
+	} else {
+		RGBService.milightSendMessage(
+			this.deviceId,
+			this.deviceGroup,
+			this.bulbStyle,
+			msgObj,
+			this.hub.address
+		);
+	}
+});
+
 // Power On
 rgbSchema.method('powerOn', function() {
 	this.state = true;
@@ -108,7 +176,8 @@ rgbSchema.method('powerOn', function() {
 			this.bulbStyle,
 			this.state,
 			this.brightness,
-			this.color
+			this.colorTemp,
+			false
 		);
 	} else {
 		RGBService.milightSetState(
@@ -117,7 +186,8 @@ rgbSchema.method('powerOn', function() {
 			this.bulbStyle,
 			this.state,
 			this.brightness,
-			false
+			false,
+			this.color
 		);
 	}
 	//console.log('turnin dis lamp on');
@@ -140,7 +210,8 @@ rgbSchema.method('togglePower', function() {
 			this.bulbStyle,
 			!this.state,
 			this.brightness,
-			this.color
+			this.colorTemp,
+			false
 		);
 	} else {
 		RGBService.milightSetState(
@@ -149,13 +220,31 @@ rgbSchema.method('togglePower', function() {
 			this.bulbStyle,
 			!this.state,
 			this.brightness,
-			false
+			false,
+			this.color
 		);
 	}
 	this.state = !this.state;
 	this.save();
+	//console.log('togglePower: this.colorState-> ' + this.colorTemp);
 	var action = this.state ? 'on' : 'off';
 	//console.log('turnin dis lamp ' + action);
+});
+
+rgbSchema.method('onWhiteBright', function(brightness) {
+	this.state = true;
+	this.isWhite = true;
+	this.brightness = parseInt(brightness);
+	this.save();
+	RGBService.milightSetState(
+		this.deviceId,
+		this.deviceGroup,
+		this.bulbStyle,
+		this.state,
+		this.brightness,
+		this.colorTemp,
+		false
+	);
 });
 
 // Set Brightness
@@ -229,11 +318,16 @@ rgbSchema.method('whiteLight', function() {
 		this.isWhite = true;
 		this.state = true;
 		this.save();
-		RGBService.milightWhiteLight(
+		var msgObj = {
+			temperature: this.colorTemp,
+			brightness: this.level
+		};
+		RGBService.milightSendMessage(
 			this.deviceId,
 			this.deviceGroup,
 			this.bulbStyle,
-			this.brightness
+			msgObj,
+			this.hub.address
 		);
 	}
 });
@@ -252,6 +346,27 @@ rgbSchema.method('setColorVal', function(val) {
 	//console.log('setting milight color hue to ' + val);
 });
 
+rgbSchema.method('setColorTemp', function(val) {
+	val = parseInt(val);
+	//console.log('setting color temp to: ' + val);
+	this.colorTemp = val;
+	this.save();
+	//console.log('this.colorState after setColorTemp: ' + this.colorTemp);
+	if (this.state && this.isWhite) {
+		var msgObj = {
+			kelvin: val,
+			transition: 1
+		};
+		RGBService.milightSendMessage(
+			this.deviceId,
+			this.deviceGroup,
+			this.bulbStyle,
+			msgObj,
+			this.hub.address
+		);
+	}
+});
+
 // Increment / Decrement Color Val
 rgbSchema.method('incrementColorVal', function() {
 	if (this.isWhite) {
@@ -266,7 +381,7 @@ rgbSchema.method('incrementColorVal', function() {
 		);
 		return;
 	}
-	this.color += 8;
+	this.color += 16;
 	this.color > 359 ? (this.color = 0) : null;
 	this.save();
 	RGBService.milightSetColor(
@@ -292,7 +407,7 @@ rgbSchema.method('decrementColorVal', function() {
 		);
 		return;
 	}
-	this.color -= 8;
+	this.color -= 16;
 	this.color < 0 ? (this.color = 359) : null;
 	this.save();
 	RGBService.milightSetColor(
@@ -302,7 +417,10 @@ rgbSchema.method('decrementColorVal', function() {
 		this.color,
 		this.brightness
 	);
-	console.log('decreasing milight color hue to: ' + this.color, this.brightness);
+	console.log(
+		'decreasing milight color hue to: ' + this.color,
+		this.brightness
+	);
 });
 
 rgbSchema.method('nextDiscoMode', function() {

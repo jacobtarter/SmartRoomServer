@@ -15,6 +15,8 @@ const websocketService = require('./services/websockets');
 const darkskyService = require('./services/darksky');
 var schedule = require('node-schedule');
 var deviceService = require('./services/switchedDeviceService');
+var weatherService = require('./services/darksky');
+var schedulerService = require('./services/schedulerService');
 
 // Connect to database
 // Database currently unused
@@ -33,6 +35,7 @@ const devices = require('./routes/api/switchedDevice');
 const rooms = require('./routes/api/room');
 const categories = require('./routes/api/category');
 const scenes = require('./routes/api/scene');
+const weather = require('./routes/api/weather');
 // Declare port number
 const port = 80;
 // Instantiate Server
@@ -52,6 +55,7 @@ app.use('/api/devices/scenes', scenes);
 app.use('/api/devices/rooms', rooms);
 app.use('/api/devices/categories', categories);
 app.use('/api/devices', devices);
+app.use('/api/data/weather', weather);
 
 //Make sure all "GET" requests go to the client folder, so React can handle the routing
 app.get('*', (req, res) => {
@@ -73,7 +77,9 @@ darkskyService.updateDarkSky();
 deviceService.buildDeviceCache();
 
 // Initialize Alexa
-alexaService.initializeAlexa();
+//alexaService.initializeAlexa();
+
+schedulerService.startSchedule();
 
 //var sceneQuery = Scene.find({});
 //sceneQuery.exec(function (err, scenes) {

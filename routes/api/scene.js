@@ -3,7 +3,6 @@ const router = express.Router();
 
 const Scene = require('../../models/switchedDevices/switchTypes/Scene');
 const SwitchedDevice = require('../../models/switchedDevices/SwitchedDevice');
-const BaseSwitch = require('../../models/switchedDevices/switchTypes/BaseSwitch');
 const Room = require('../../models/switchedDevices/rooms/Room');
 const Category = require('../../models/switchedDevices/deviceCategories/DeviceCategory');
 
@@ -18,6 +17,24 @@ const limiter = new Bottleneck({
 	strategy: Bottleneck.strategy.OVERFLOW
 });
 
+// Temporary Testing Route, For Dev
+router.get('/', (req, res) => {
+	SwitchedDevice.find({})
+		.populate({ path: 'category', select: 'name' })
+		.populate({ path: 'room', select: 'name' })
+		.populate({ path: 'switch' })
+		.then(devices => {
+			returnArray = [];
+			devices.forEach(function(device) {
+				console.log('type: ' + device.switch.type);
+				if (device.switch.type === 'Scene') {
+					returnArray.push(device);
+				}
+			});
+			res.json(returnArray);
+		});
+});
+
 // Create Scene
 router.post('/', (req, res) => {
 	try {
@@ -30,7 +47,6 @@ router.post('/', (req, res) => {
 		if (req.body.category) {
 			console.log(req.body.category);
 			Category.findById(req.body.category).then(category => {
-				console.log('Category: ' + category);
 				newDevice.category = category;
 				if (req.body.room) {
 					Room.findById(req.body.room).then(room => {
